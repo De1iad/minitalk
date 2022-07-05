@@ -6,7 +6,7 @@
 /*   By: obibby <obibby@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 17:35:36 by obibby            #+#    #+#             */
-/*   Updated: 2022/07/05 17:15:46 by obibby           ###   ########.fr       */
+/*   Updated: 2022/07/05 23:11:29 by obibby           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,10 @@ void	binrevert(int n, siginfo_t *info, void *ucontext)
 {
 	static char		c;
 	static int		x;
-	static pid_t	pid;
+	pid_t			pid;
 
 	pid = info->si_pid;
+	(void)ucontext;
 	if (n == SIGUSR1)
 		c = (c << 1) | 1;
 	else if (n == SIGUSR2)
@@ -42,10 +43,10 @@ void	binrevert(int n, siginfo_t *info, void *ucontext)
 	kill(pid, SIGUSR2);
 }
 
-int	main()
+int	main(void)
 {
-	struct sigaction sa;
-	
+	struct sigaction	sa;
+
 	sa.sa_sigaction = binrevert;
 	sa.sa_flags = SA_SIGINFO;
 	ft_printf("Server PID: %d\n", getpid());

@@ -6,7 +6,7 @@
 /*   By: obibby <obibby@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 17:34:08 by obibby            #+#    #+#             */
-/*   Updated: 2022/07/05 17:01:43 by obibby           ###   ########.fr       */
+/*   Updated: 2022/07/05 22:52:00 by obibby           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	receivedsigs(int n)
 		x++;
 	if (n == SIGUSR1)
 	{
-		ft_printf("Characters received successfully: %d\n", x/8);
+		ft_printf("Characters received successfully: %d\n", x / 8);
 		exit(0);
 	}
 	return ;
@@ -32,7 +32,10 @@ int	binconvert(char c, int pid, int i)
 {
 	while (i >= 0)
 	{
-		kill(pid, ((c & (1 << i)) ? SIGUSR1 : SIGUSR2));
+		if (c & (1 << i))
+			kill(pid, SIGUSR1);
+		else
+			kill(pid, SIGUSR2);
 		i--;
 		pause();
 	}
@@ -41,9 +44,14 @@ int	binconvert(char c, int pid, int i)
 
 int	main(int argc, char *argv[])
 {
-	int i;
+	int	i;
 	int	n;
-	
+
+	if (argc != 3)
+	{
+		ft_printf("Missing arguments!");
+		return (1);
+	}
 	i = 0;
 	n = ft_atoi(argv[1]);
 	signal(SIGUSR1, receivedsigs);
