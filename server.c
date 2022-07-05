@@ -6,7 +6,7 @@
 /*   By: obibby <obibby@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 17:35:36 by obibby            #+#    #+#             */
-/*   Updated: 2022/07/05 13:03:25 by obibby           ###   ########.fr       */
+/*   Updated: 2022/07/05 17:15:46 by obibby           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,29 +14,39 @@
 #include <signal.h>
 #include "./libft/libft.h"
 
-void	binrevert(int n)
+void	binrevert(int n, siginfo_t *info, void *ucontext)
 {
-	static char	c;
-	static int	x;
+	static char		c;
+	static int		x;
+	static pid_t	pid;
 
-	if (n == 10)
+	pid = info->si_pid;
+	if (n == SIGUSR1)
 		c = (c << 1) | 1;
-	else if (n == 12)
+	else if (n == SIGUSR2)
 		c <<= 1;
 	x++;
 	if (x == 8)
 	{
 		x = 0;
+		if (!c)
+		{
+			kill(pid, SIGUSR1);
+			pid = 0;
+			c = 0;
+			return ;
+		}
 		write(1, &c, 1);
 		c = 0;
 	}
+	kill(pid, SIGUSR2);
 }
 
 int	main()
 {
 	struct sigaction sa;
 	
-	sa.sa_handler = binrevert;
+	sa.sa_sigaction = binrevert;
 	sa.sa_flags = SA_SIGINFO;
 	ft_printf("Server PID: %d\n", getpid());
 	sigaction(SIGUSR1, &sa, NULL);
