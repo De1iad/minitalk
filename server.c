@@ -6,7 +6,7 @@
 /*   By: obibby <obibby@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 17:35:36 by obibby            #+#    #+#             */
-/*   Updated: 2022/07/05 23:11:29 by obibby           ###   ########.fr       */
+/*   Updated: 2022/07/23 23:23:49 by obibby           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,29 +18,29 @@ void	binrevert(int n, siginfo_t *info, void *ucontext)
 {
 	static char		c;
 	static int		x;
-	pid_t			pid;
+	static int		pid;
 
-	pid = info->si_pid;
 	(void)ucontext;
+	if (pid == 0)
+		pid = info->si_pid;
 	if (n == SIGUSR1)
 		c = (c << 1) | 1;
 	else if (n == SIGUSR2)
 		c <<= 1;
-	x++;
-	if (x == 8)
+	if (++x == 8)
 	{
 		x = 0;
 		if (!c)
 		{
 			kill(pid, SIGUSR1);
 			pid = 0;
-			c = 0;
 			return ;
 		}
 		write(1, &c, 1);
 		c = 0;
 	}
 	kill(pid, SIGUSR2);
+	return ;
 }
 
 int	main(void)
